@@ -15,6 +15,7 @@ def draw_text():
     text = font.render("Test",True, BLACK)
     text_rect = text.get_rect()
     
+    WIN.blit(text, text_rect)
     pygame.display.update()
     
     
@@ -28,8 +29,10 @@ def main():
                 run = False
         
         WIN.fill(WHITE)
-        pygame.display.update()
+        
         draw_text()
+        pygame.display.update()
+        
     pygame.quit()
 
 if __name__ == "__main__":
