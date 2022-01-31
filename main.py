@@ -5,7 +5,7 @@ pygame.init()
 
 
 # create display surface
-screen = pygame.display.set_mode((800, 400))
+SCREEN = pygame.display.set_mode((800, 400))
 pygame.display.set_caption('Typing Trainer')
 
 # clock object
@@ -19,7 +19,7 @@ while True:
             pygame.quit()
             exit()
 
-    screen.fill('Black')
+    SCREEN.fill('Black')
 
     # update (reload) the screen every clock tick
     pygame.display.update()
