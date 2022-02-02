@@ -2,6 +2,7 @@
 
 """
 
+from calendar import c
 import pygame
 import random
 
@@ -10,6 +11,35 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 
+class Letter:
+    def __init__(self, char, start_x, start_y):
+        self.char = char
+        
+        self.x = start_x
+        self.y = start_y
+
+        r = random.randint(80, 255)
+        g = random.randint(80, 255)
+        b = random.randint(80, 255)
+        self.color = BLACK #(r, g, b)
+
+    def get_width(self):
+        font = pygame.font.Font(None, 42)
+        text = font.render(self.char, True, self.color)
+        char_width = text.get_width()
+
+        return char_width
+
+    def draw(self, screen):
+        self.x -= 3
+        font = pygame.font.Font(None, 42)
+        text = font.render(self.char, True, self.color)
+        text_rect = text.get_rect()
+        text_rect.center = (self.x, self.y)
+        screen.blit(text, text_rect)
+    
+    def move_left(self, velocity):
+        self.x -= velocity
 
 class Word:
     """
@@ -28,21 +58,28 @@ class Word:
 
         self.velocity = 0.5
 
+        current_x = start_x
+        self.letters = []
+
+        for char in self.word:
+            letter = Letter(char, current_x, start_y)
+            self.letters.append(letter)
+            current_x += letter.get_width()
+
     # Draws word to the screen if it is in bounds
     def draw(self, screen):
+        self.x -= 3
         if self.x > -100:
-            self.x -= 3
-            font = pygame.font.Font(None, 42)
-            text = font.render(self.word, True, BLACK)
-            text_rect = text.get_rect()
-            text_rect.center = (self.x, self.y)
-            screen.blit(text, text_rect)
+            for letter in self.letters:
+                letter.draw(screen)
         else:
             self.new_word()
 
     # Moves word left based on velocity
     def move_left(self):
         self.x -= self.velocity
+        for letter in self.letters:
+            letter.move_left(self.velocity)
 
     # Getter: Returns current word
     def get_word(self):
@@ -50,11 +87,32 @@ class Word:
 
     # Loads a new word and resets x and y
     def new_word(self):
+        # self = Word(self.word_list, self.start_x, self.start_y)
+
         # New random word
         self.word = self.word_list[random.randint(0, 9999)]
         # Resets x and y to orginal values
         self.x = self.start_x
         self.y = self.start_y
+
+        current_x = self.start_x
+        self.letters = []
+
+        for char in self.word:
+            letter = Letter(char, current_x, self.start_y)
+            self.letters.append(letter)
+            current_x += letter.get_width()
+
+    def show_completion(self, text):
+        if text in self.word and len(text) <= len(self.word):
+            for char in enumerate(text):
+                if char[1] == self.letters[char[0]].char:
+                    self.letters[char[0]].color = RED
+        else:
+            for letter in self.letters:
+                letter.color = BLACK
+
+    
 
 
 class Score:
@@ -185,6 +243,9 @@ def main():
                 # Adds character to user_text
                 else:
                     user_text += event.unicode
+            
+                for word in screen_words:
+                    word.show_completion(user_text)
 
             # If lives
             if lives <= 0:
