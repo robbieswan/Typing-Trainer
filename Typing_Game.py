@@ -2,6 +2,7 @@
 
 """
 
+from calendar import c
 import pygame
 import random
 
@@ -12,7 +13,7 @@ RED = (255, 0, 0)
 
 class Letter:
     def __init__(self, char, start_x, start_y):
-        self.charater = char
+        self.char = char
         
         self.x = start_x
         self.y = start_y
@@ -20,11 +21,11 @@ class Letter:
         r = random.randint(80, 255)
         g = random.randint(80, 255)
         b = random.randint(80, 255)
-        self.color = (r, g, b)
+        self.color = BLACK #(r, g, b)
 
     def get_width(self):
         font = pygame.font.Font(None, 42)
-        text = font.render(self.charater, True, self.color)
+        text = font.render(self.char, True, self.color)
         char_width = text.get_width()
 
         return char_width
@@ -32,7 +33,7 @@ class Letter:
     def draw(self, screen):
         self.x -= 3
         font = pygame.font.Font(None, 42)
-        text = font.render(self.charater, True, self.color)
+        text = font.render(self.char, True, self.color)
         text_rect = text.get_rect()
         text_rect.center = (self.x, self.y)
         screen.blit(text, text_rect)
@@ -101,6 +102,15 @@ class Word:
             letter = Letter(char, current_x, self.start_y)
             self.letters.append(letter)
             current_x += letter.get_width()
+
+    def show_completion(self, text):
+        if text in self.word and len(text) <= len(self.word):
+            for char in enumerate(text):
+                if char[1] == self.letters[char[0]].char:
+                    self.letters[char[0]].color = RED
+        else:
+            for letter in self.letters:
+                letter.color = BLACK
 
     
 
@@ -233,6 +243,9 @@ def main():
                 # Adds character to user_text
                 else:
                     user_text += event.unicode
+            
+                for word in screen_words:
+                    word.show_completion(user_text)
 
             # If lives
             if lives <= 0:
